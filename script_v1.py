@@ -4,25 +4,25 @@ import math
 def main():
     lg = input("Which league? ")
     if lg.lower() == "mlb":
-        file1 = open("./Data/MLBBat.csv")
-        file2 = open("./Data/MLBPitch.csv")
+        file1 = open("./Data/mlb_bat.csv")
+        file2 = open("./Data/mlb_pitch.csv")
         bat = list(csv.reader(file1))
         pitch = list(csv.reader(file2))
         two_csv(bat, pitch, "mlb")
     elif lg.lower() == "nba":
-        file1 = open("./Data/NBATeam.csv")
-        file2 = open("./Data/NBAOpp.csv")
+        file1 = open("./Data/nba_team.csv")
+        file2 = open("./Data/nba_opp.csv")
         team = list(csv.reader(file1))
         opp = list(csv.reader(file2))
         two_csv(team, opp, "nba")
     elif lg.lower() =="nfl":
-        file1 = open("./Data/NFLTeam.csv")
-        file2 = open("./Data/NFLOpp.csv")
+        file1 = open("./Data/nfl_team.csv")
+        file2 = open("./Data/nfl_opp.csv")
         team = list(csv.reader(file1))
         opp = list(csv.reader(file2))
         two_csv(team, opp, "nfl")
     elif lg.lower() == "nhl":
-        file = open("./Data/NHL.csv")
+        file = open("./Data/nhl.csv")
         data = list(csv.reader(file))
         one_csv(data, "nhl")
 
