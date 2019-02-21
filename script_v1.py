@@ -2,27 +2,28 @@ import csv
 import math
 
 def main():
+    # Checking which league user wants to choose
     lg = input("Which league? ")
     if lg.lower() == "mlb":
-        file1 = open("./Data/mlb_bat.csv")
-        file2 = open("./Data/mlb_pitch.csv")
+        file1 = open("./Data/MLB/mlb_bat.csv")
+        file2 = open("./Data/MLB/mlb_pitch.csv")
         bat = list(csv.reader(file1))
         pitch = list(csv.reader(file2))
         two_csv(bat, pitch, "mlb")
     elif lg.lower() == "nba":
-        file1 = open("./Data/nba_team.csv")
-        file2 = open("./Data/nba_opp.csv")
+        file1 = open("./Data/NBA/nba_team.csv")
+        file2 = open("./Data/NBA/nba_opp.csv")
         team = list(csv.reader(file1))
         opp = list(csv.reader(file2))
         two_csv(team, opp, "nba")
     elif lg.lower() =="nfl":
-        file1 = open("./Data/nfl_team.csv")
-        file2 = open("./Data/nfl_opp.csv")
+        file1 = open("./Data/NFL/nfl_team.csv")
+        file2 = open("./Data/NFL/nfl_opp.csv")
         team = list(csv.reader(file1))
         opp = list(csv.reader(file2))
         two_csv(team, opp, "nfl")
     elif lg.lower() == "nhl":
-        file = open("./Data/nhl.csv")
+        file = open("./Data/NHL/nhl.csv")
         data = list(csv.reader(file))
         one_csv(data, "nhl")
 
@@ -35,8 +36,10 @@ def row_containing_team(team, data):
     :type data: list
     :rtype: int
     """
+    # Looping through rows in data and checking which one matches the team selected
     row_num = 0
     for row in data:
+        # Checking at both indices since MLB CSV has team at index 1
         if team.lower() in row[0].lower() or team.lower() in row[1].lower():
             break
         else:
@@ -52,10 +55,12 @@ def one_csv(data, lg):
     :type lg: str
     :rtype: None
     """
+    # Opening a file based on which league user wants
     if lg.lower() == "nhl":
         file = open("nhl", "a")
         lg_ppg = float(data[32][9]) / float(data[32][3])
 
+    # Getting team stats from CSV
     away = input("Away team? ")
     away_row = row_containing_team(away, data)
     if lg.lower() == "nhl":
@@ -70,6 +75,7 @@ def one_csv(data, lg):
         home_ppg = float(data[home_row][9]) / float(data[home_row][3])
         home_ppga = float(data[home_row][10]) / float(data[home_row][3])
 
+    # Making predictions using stats
     away_score = (away_ppg / lg_ppg) * (home_ppga / lg_ppg) * lg_ppg
     home_score = (home_ppg / lg_ppg) * (away_ppga / lg_ppg) * lg_ppg
     spread = math.fabs(away_score - home_score)
@@ -82,6 +88,7 @@ def one_csv(data, lg):
     home_win = 0.0
     tie = 0.0
 
+    # Using a Poisson distribution to calculate likelihood of favourite winning
     if lg.lower() == "nhl":
         for i in range(9):
             for j in range(9):
@@ -112,6 +119,7 @@ def two_csv(data1, data2, lg):
     :type lg: str
     :rtype: None
     """
+    # Opening a file based on which league user wants
     if lg.lower() == "mlb":
         file = open("mlb", "a")
         lg_ppg = float(data1[31][3])
@@ -122,6 +130,7 @@ def two_csv(data1, data2, lg):
         file = open("nfl", "a")
         lg_ppg = float(data1[35][3])
 
+    # Getting team stats from CSV
     away = input("Away team? ")
     away_row_off = row_containing_team(away, data1)
     away_row_def = row_containing_team(away, data2)
@@ -154,6 +163,7 @@ def two_csv(data1, data2, lg):
         home_ppg = float(data1[home_row_off][3]) / float(data1[home_row_off][2])
         home_ppga = float(data2[home_row_def][3]) / float(data2[home_row_def][2])
 
+    # Making predictions using stats
     away_score = (away_ppg / lg_ppg) * (home_ppga / lg_ppg) * lg_ppg
     home_score = (home_ppg / lg_ppg) * (away_ppga / lg_ppg) * lg_ppg
     spread = math.fabs(away_score - home_score)
@@ -166,6 +176,7 @@ def two_csv(data1, data2, lg):
     home_win = 0.0
     tie = 0.0
 
+    # Using a Poisson distribution to calculate likelihood of favourite winning
     if lg.lower() == "mlb":
         for i in range(9):
             for j in range(9):
@@ -215,6 +226,7 @@ def poisson(actual, mean):
     :type mean: float
     :rtype: float
     """
+    # Using the Poisson distribution
     return math.pow(mean, actual) * math.exp(-mean) / math.factorial(actual)
 
 
