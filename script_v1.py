@@ -31,7 +31,6 @@ def main():
 def row_containing_team(team, data):
     """
     Returns row of team in data
-
     :type team: str
     :type data: list
     :rtype: int
@@ -50,7 +49,6 @@ def row_containing_team(team, data):
 def one_csv(data, lg):
     """
     Predicts final score of league with one CSV
-
     :type data: list
     :type lg: str
     :rtype: None
@@ -113,7 +111,6 @@ def one_csv(data, lg):
 def two_csv(data1, data2, lg):
     """
     Predicts final score of league with two CSVs
-
     :type data1: list
     :type data2: list
     :type lg: str
@@ -221,7 +218,6 @@ def two_csv(data1, data2, lg):
 def poisson(actual, mean):
     """
     Returns a Poisson probability
-
     :type actual: float
     :type mean: float
     :rtype: float
