@@ -8,8 +8,8 @@ def main():
         from sportsipy.nfl.teams import Teams
     elif lg.lower() == "mlb":
         from sportsipy.mlb.teams import Teams
-    elif lg.lower() == "nhl":
-        from sportsipy.nhl.teams import Teams
+    # elif lg.lower() == "nhl":
+    #     from sportsipy.nhl.teams import Teams
     elif lg.lower() == "nba":
         from sportsipy.nba.teams import Teams
     else:
@@ -30,22 +30,30 @@ def calculate(lg, teams):
     file = open(filename, "a")
     lg_pf = get_league_average(lg, teams)
 
-    # Getting points per game tuples for away and home teams
-    away_input = input("Away team? ")
-    away_team = get_team(teams, away_input)
-    away_ppg = get_ppg_tuple(lg.lower(), away_team)
+    # Getting points per game tuples for away and home teams and calculating
+    # Continues until user decides to exit
+    while True:
+        away_input = input("Away team? ")
+        if away_input.lower() == "exit":
+            break
 
-    home_input = input("Home team? ")
-    home_team = get_team(teams, home_input)
-    home_ppg = get_ppg_tuple(lg.lower(), home_team)
+        away_team = get_team(teams, away_input)
+        away_ppg = get_ppg_tuple(lg.lower(), away_team)
 
-    away_score = (away_ppg[0] / lg_pf) * (home_ppg[1] / lg_pf) * lg_pf
-    home_score = (home_ppg[0] / lg_pf) * (away_ppg[1] / lg_pf) * lg_pf
-    spread = math.fabs(away_score - home_score)
-    total = away_score + home_score
+        home_input = input("Home team? ")
+        if home_input.lower() == "exit":
+            break
 
-    print(f"{away_team.name}: {away_score:.1f} - {home_team.name}: {home_score:.1f}\nSpread: {spread:.1f}, Total: {total:.1f}\n\n")
-    file.write(f"{away_team.name}: {away_score:.1f} - {home_team.name}: {home_score:.1f}\nSpread: {spread:.1f}, Total: {total:.1f}\n\n")
+        home_team = get_team(teams, home_input)
+        home_ppg = get_ppg_tuple(lg.lower(), home_team)
+
+        away_score = (away_ppg[0] / lg_pf) * (home_ppg[1] / lg_pf) * lg_pf
+        home_score = (home_ppg[0] / lg_pf) * (away_ppg[1] / lg_pf) * lg_pf
+        spread = math.fabs(away_score - home_score)
+        total = away_score + home_score
+
+        print(f"{away_team.name}: {away_score:.1f} - {home_team.name}: {home_score:.1f}\nSpread: {spread:.1f}, Total: {total:.1f}\n\n")
+        file.write(f"{away_team.name}: {away_score:.1f} - {home_team.name}: {home_score:.1f}\nSpread: {spread:.1f}, Total: {total:.1f}\n\n")
 
 
 def get_league_average(lg, teams):
@@ -71,12 +79,12 @@ def get_league_average(lg, teams):
             lg_pf = lg_pf + team.runs
         lg_gp = lg_gp / 30
         lg_pf = lg_pf / 30
-    elif lg.lower() == "nhl":
-        for team in teams:
-            lg_gp = lg_gp + team.games_played
-            lg_pf = lg_pf + team.goals_for
-        lg_gp = lg_gp / 31
-        lg_pf = lg_pf / 31
+    # elif lg.lower() == "nhl":
+    #     for team in teams:
+    #         lg_gp = lg_gp + team.games_played
+    #         lg_pf = lg_pf + team.goals_for
+    #     lg_gp = lg_gp / 31
+    #     lg_pf = lg_pf / 31
     elif lg.lower() == "nba":
         for team in teams:
             lg_gp = lg_gp + team.games_played
@@ -117,13 +125,13 @@ def get_ppg_tuple(lg, team):
         rf = team.runs_for
         ra = team.runs_against
         tup = (rf, ra)
-    elif lg.lower() == "nhl":
-        gp = team.games_played
-        gf = team.goals_for
-        gf = gf / gp
-        ga = team.goals_against
-        ga = ga / gp
-        tup = (gf, ga)
+    # elif lg.lower() == "nhl":
+    #     gp = team.games_played
+    #     gf = team.goals_for
+    #     gf = gf / gp
+    #     ga = team.goals_against
+    #     ga = ga / gp
+    #     tup = (gf, ga)
     elif lg.lower() == "nba":
         gp = team.games_played
         pf = team.points
@@ -131,7 +139,7 @@ def get_ppg_tuple(lg, team):
         pa = team.opp_points
         pa = pa / gp
         tup = (pf, pa)
-    
+
     return tup
 
 
