@@ -6,13 +6,21 @@ def main():
 
     # Calling calculate based on chosen league
     if lg.lower() == "nfl":
-        from sportsreference.nfl.teams import Teams
+        from sportsipy.nfl.teams import Teams
         teams = Teams()
         calculate("nfl", teams)
     elif lg.lower() == "mlb":
-        from sportsreference.mlb.teams import Teams
+        from sportsipy.mlb.teams import Teams
         teams = Teams()
         calculate("mlb", teams)
+    elif lg.lower() == "nhl":
+        from sportsipy.nhl.teams import Teams
+        teams = Teams()
+        calculate("nhl", teams)
+    elif lg.lower() == "nba":
+        from sportsipy.nba.teams import Teams
+        teams = Teams()
+        calculate("nba", teams)
 
 def calculate(lg, teams):
     """
@@ -21,122 +29,115 @@ def calculate(lg, teams):
     :type teams: Teams
     :rtype: None
     """
+    lg_pf = get_league_average(lg, teams)
+
+    # Getting ppg tuples for away and home teams
+    away_input = input("Away team? ")
+    away_team = get_team(teams, away_input)
+    away_ppg = get_ppg_tuple(lg.lower(), away_team)
+
+    home_input = input("Home team? ")
+    home_team = get_team(teams, home_input)
+    home_ppg = get_ppg_tuple(lg.lower(), home_team)
+
+    # Calculating score based on team performances against the league average
+    away_score = (away_ppg[0] / lg_pf) * (home_ppg[1] / lg_pf) * lg_pf
+    home_score = (home_ppg[0] / lg_pf) * (away_ppg[1] / lg_pf) * lg_pf
+    spread = math.fabs(away_score - home_score)
+    total = away_score + home_score
+
+    print(f"\n{away_team.name}: {away_score:.1f} - {home_team.name}: {home_score:.1f}\nSpread: {spread:.1f}, Total: {total:.1f}\n")
+
+
+def get_league_average(lg, teams):
+    """
+    Get league average points per game
+    :type lg: string
+    :type teams: Teams
+    :rtype: float
+    """
+    lg_gp = 0
     lg_pf = 0.0
     lg_pa = 0.0
 
     # Finding league average ppg for and ppg against
     if lg.lower() == "nfl":
         for team in teams:
-            df = team.dataframe
-            lg_pf = lg_pf + (float(df["points_for"]) / float(df["games_played"]))
-            lg_pa = lg_pa + (float(df["points_against"]) / float(df["games_played"]))
+            lg_gp = lg_gp + team.games_played
+            lg_pf = lg_pf + team.points_for
+        lg_gp = lg_gp / 32
         lg_pf = lg_pf / 32
-        lg_pa = lg_pa / 32
     elif lg.lower() == "mlb":
         for team in teams:
-            df = team.dataframe
-            lg_pf = lg_pf + float(df["runs"])
-            lg_pa = lg_pa + float(df["runs_against"])
+            lg_gp = lg_gp + team.games_played
+            lg_pf = lg_pf + team.runs
+        lg_gp = lg_gp / 30
         lg_pf = lg_pf / 30
-        lg_pa = lg_pa / 30
+    elif lg.lower() == "nhl":
+        for team in teams:
+            lg_gp = lg_gp + team.games_played
+            lg_pf = lg_pf + team.goals_for
+        lg_gp = lg_gp / 31
+        lg_pf = lg_pf / 31
+    elif lg.lower() == "nba":
+        for team in teams:
+            lg_gp = lg_gp + team.games_played
+            lg_pf = lg_pf + team.points
+        lg_gp = lg_gp / 30
+        lg_pf = lg_pf / 30
 
-    # Getting ppg tuples for away and home teams
-    away_input = input("Away team? ")
-    home_input = input("Home team? ")
-    if lg.lower() == "nfl":
-        away_ppg = get_ppg_tuple("nfl", teams, away_input)
-        home_ppg = get_ppg_tuple("nfl", teams, home_input)
-    elif lg.lower() == "mlb":
-        away_ppg = get_ppg_tuple("mlb", teams, away_input)
-        home_ppg = get_ppg_tuple("mlb", teams, home_input)
-
-    # Calculating score based on team performances against the league average
-    away_score = (away_ppg[0] / lg_pf) * (home_ppg[1] / lg_pa) * lg_pf
-    home_score = (home_ppg[0] / lg_pf) * (away_ppg[1] / lg_pa) * lg_pf
-    spread = math.fabs(away_score - home_score)
-    total = away_score + home_score
-    print("\n%s: %.1f - %s: %.1f\nSpread: %.1f, Total: %.1f\n" % (away_input, away_score, home_input, home_score, spread, total))
-
-    # Using a Poisson distribution to calculate likelihood of favourite winning
-    away_win = 0.0
-    home_win = 0.0
-    tie = 0.0
-    max_pts = 0
-
-    if lg.lower() == "nfl":
-        for i in range(0, 50, 5):
-            for j in range(0, 50, 5):
-                prob = poisson(i, away_score) * poisson(j, home_score)
-                if i < j:
-                    home_win += prob
-                elif i > j:
-                    away_win += prob
-                else:
-                    tie += prob
-    elif lg.lower() == "mlb":
-        for i in range(9):
-            for j in range(9):
-                prob = poisson(i, away_score) * poisson(j, home_score)
-                if i < j:
-                    home_win += prob
-                elif i > j:
-                    away_win += prob
-                else:
-                    tie += prob
-
-    print("%s: %.3f" % (away_input, away_win / (away_win + home_win + tie)))
-    print("%s: %.3f" % (home_input, home_win / (away_win + home_win + tie)))
-    print("Tie: %.3f" % (tie / (away_win + home_win + tie)))
-    print("SU: %.3f\n" % (max(away_win, home_win) / (away_win + home_win)))
+    return lg_pf / lg_gp
 
 
-def get_stat(teams, team_name, stat):
+def get_team(teams, team_input):
     """
-    Returns desired statistic from dataframe
+    Returns desired Team from Teams
     :type teams: Teams
-    :type team_name: string
-    :type stat: string
-    :rtype: dataframe
+    :type team: string
+    :rtype: Team
     """
     # Looping through teams until desired team is found
     for team in teams:
-        if (team.name.lower() == team_name.lower()) or (team.abbreviation.lower() == team_name.lower()):
-            df = team.dataframe
-            return df.loc[:, stat]
+        if team_input.lower() in team.name.lower():
+            return team
 
 
-def get_ppg_tuple(lg, teams, team_name):
+def get_ppg_tuple(lg, team):
     """
     Returns a tuple of team's ppg for and ppg against.
     :type lg: string
-    :type teams: Teams
-    :type team_name: string
+    :type team: string
     :rtype: float tuple
     """
     if lg.lower() == "nfl":
-        gp = int(get_stat(teams, team_name, "games_played"))
-        pf = int(get_stat(teams, team_name, "points_for"))
+        gp = team.games_played
+        pf = team.points_for
         pf = pf / gp
-        pa = int(get_stat(teams, team_name, "points_against"))
+        pa = team.points_against
         pa = pa / gp
         tup = (pf, pa)
         return tup
     elif lg.lower() == "mlb":
-        rf = float(get_stat(teams, team_name, "runs"))
-        ra = float(get_stat(teams, team_name, "runs_against"))
+        rf = team.runs_for
+        ra = team.runs_against
         tup = (rf, ra)
         return tup
-
-
-def poisson(actual, mean):
-    """
-    Returns a Poisson probability.
-    :type actual: float
-    :type mean: float
-    :rtype: float
-    """
-    # Using the Poisson distribution
-    return math.pow(mean, actual) * math.exp(-mean) / math.factorial(actual)
+    elif lg.lower() == "nhl":
+        gp = team.games_played
+        gf = team.goals_for
+        gf = gf / gp
+        ga = team.goals_against
+        ga = ga / gp
+        tup = (gf, ga)
+        return tup
+    elif lg.lower() == "nba":
+        gp = team.games_played
+        pf = team.points
+        pf = pf / gp
+        pa = team.opp_points
+        pa = pa / gp
+        tup = (pf, pa)
+        return tup
 
 
 main()
