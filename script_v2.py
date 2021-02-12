@@ -1,26 +1,23 @@
+from datetime import datetime
 import math
 
 def main():
-    # Checking which league user wants to choose
     lg = input("Which league? ")
 
-    # Calling calculate based on chosen league
     if lg.lower() == "nfl":
         from sportsipy.nfl.teams import Teams
-        teams = Teams()
-        calculate("nfl", teams)
     elif lg.lower() == "mlb":
         from sportsipy.mlb.teams import Teams
-        teams = Teams()
-        calculate("mlb", teams)
     elif lg.lower() == "nhl":
         from sportsipy.nhl.teams import Teams
-        teams = Teams()
-        calculate("nhl", teams)
     elif lg.lower() == "nba":
         from sportsipy.nba.teams import Teams
-        teams = Teams()
-        calculate("nba", teams)
+    else:
+        print("Error!")
+        return
+
+    teams = Teams()
+    calculate(lg.lower(), teams)
 
 def calculate(lg, teams):
     """
@@ -29,9 +26,11 @@ def calculate(lg, teams):
     :type teams: Teams
     :rtype: None
     """
+    filename = f"{lg.lower()}_{datetime.now().strftime('%m-%d-%Y')}.txt"
+    file = open(filename, "a")
     lg_pf = get_league_average(lg, teams)
 
-    # Getting ppg tuples for away and home teams
+    # Getting points per game tuples for away and home teams
     away_input = input("Away team? ")
     away_team = get_team(teams, away_input)
     away_ppg = get_ppg_tuple(lg.lower(), away_team)
@@ -40,13 +39,13 @@ def calculate(lg, teams):
     home_team = get_team(teams, home_input)
     home_ppg = get_ppg_tuple(lg.lower(), home_team)
 
-    # Calculating score based on team performances against the league average
     away_score = (away_ppg[0] / lg_pf) * (home_ppg[1] / lg_pf) * lg_pf
     home_score = (home_ppg[0] / lg_pf) * (away_ppg[1] / lg_pf) * lg_pf
     spread = math.fabs(away_score - home_score)
     total = away_score + home_score
 
-    print(f"\n{away_team.name}: {away_score:.1f} - {home_team.name}: {home_score:.1f}\nSpread: {spread:.1f}, Total: {total:.1f}\n")
+    print(f"{away_team.name}: {away_score:.1f} - {home_team.name}: {home_score:.1f}\nSpread: {spread:.1f}, Total: {total:.1f}\n\n")
+    file.write(f"{away_team.name}: {away_score:.1f} - {home_team.name}: {home_score:.1f}\nSpread: {spread:.1f}, Total: {total:.1f}\n\n")
 
 
 def get_league_average(lg, teams):
@@ -60,7 +59,6 @@ def get_league_average(lg, teams):
     lg_pf = 0.0
     lg_pa = 0.0
 
-    # Finding league average ppg for and ppg against
     if lg.lower() == "nfl":
         for team in teams:
             lg_gp = lg_gp + team.games_played
@@ -93,10 +91,9 @@ def get_team(teams, team_input):
     """
     Returns desired Team from Teams
     :type teams: Teams
-    :type team: string
+    :type team_input: string
     :rtype: Team
     """
-    # Looping through teams until desired team is found
     for team in teams:
         if team_input.lower() in team.name.lower():
             return team
@@ -116,12 +113,10 @@ def get_ppg_tuple(lg, team):
         pa = team.points_against
         pa = pa / gp
         tup = (pf, pa)
-        return tup
     elif lg.lower() == "mlb":
         rf = team.runs_for
         ra = team.runs_against
         tup = (rf, ra)
-        return tup
     elif lg.lower() == "nhl":
         gp = team.games_played
         gf = team.goals_for
@@ -129,7 +124,6 @@ def get_ppg_tuple(lg, team):
         ga = team.goals_against
         ga = ga / gp
         tup = (gf, ga)
-        return tup
     elif lg.lower() == "nba":
         gp = team.games_played
         pf = team.points
@@ -137,7 +131,8 @@ def get_ppg_tuple(lg, team):
         pa = team.opp_points
         pa = pa / gp
         tup = (pf, pa)
-        return tup
+    
+    return tup
 
 
 main()
