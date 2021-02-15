@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 import math
 
 def main():
@@ -53,35 +54,43 @@ def one_csv(data, lg):
     :type lg: str
     :rtype: None
     """
-    # Opening a file based on which league user wants
+    filename = f"{lg.lower()}_{datetime.now().strftime('%m-%d-%Y')}.txt"
+    file = open(filename, "a")
+
+    # Getting league averages based on which league user wants
     if lg.lower() == "nhl":
-        file = open("nhl", "a")
         lg_ppg = float(data[32][9]) / float(data[32][3])
 
+    while True:
     # Getting team stats from CSV
-    away = input("Away team? ")
-    away_row = row_containing_team(away, data)
-    if lg.lower() == "nhl":
-        away = data[away_row][1]
-        away_ppg = float(data[away_row][9]) / float(data[away_row][3])
-        away_ppga = float(data[away_row][10]) / float(data[away_row][3])
+        away = input("Away team? ")
+        if away.lower() == "exit":
+            break
 
-    home = input("Home team? ")
-    home_row = row_containing_team(home, data)
-    if lg.lower() == "nhl":
-        home = data[home_row][1]
-        home_ppg = float(data[home_row][9]) / float(data[home_row][3])
-        home_ppga = float(data[home_row][10]) / float(data[home_row][3])
+        away_row = row_containing_team(away, data)
+        if lg.lower() == "nhl":
+            away = data[away_row][1]
+            away_ppg = float(data[away_row][9]) / float(data[away_row][3])
+            away_ppga = float(data[away_row][10]) / float(data[away_row][3])
 
-    # Making predictions using stats
-    away_score = (away_ppg / lg_ppg) * (home_ppga / lg_ppg) * lg_ppg
-    home_score = (home_ppg / lg_ppg) * (away_ppga / lg_ppg) * lg_ppg
-    spread = math.fabs(away_score - home_score)
-    total = away_score + home_score
+        home = input("Home team? ")
+        if home.lower() == "exit":
+            break
 
-    print("\n%s: %.1f - %s: %.1f\nSpread: %.1f, Total: %.1f\n" % (away, away_score, home, home_score, spread, total))
-    file.write("%s: %.1f - %s: %.1f\nSpread: %.1f, Total: %.1f\n" % (away, away_score, home, home_score, spread, total))
-    file.close()
+        home_row = row_containing_team(home, data)
+        if lg.lower() == "nhl":
+            home = data[home_row][1]
+            home_ppg = float(data[home_row][9]) / float(data[home_row][3])
+            home_ppga = float(data[home_row][10]) / float(data[home_row][3])
+
+        # Making predictions using stats
+        away_score = (away_ppg / lg_ppg) * (home_ppga / lg_ppg) * lg_ppg
+        home_score = (home_ppg / lg_ppg) * (away_ppga / lg_ppg) * lg_ppg
+        spread = math.fabs(away_score - home_score)
+        total = away_score + home_score
+
+        print(f"{away}: {away_score:.1f} - {home}: {home_score:.1f}\nSpread: {spread:.1f}, Total: {total:.1f}\n\n")
+        file.write(f"{away}: {away_score:.1f} - {home}: {home_score:.1f}\nSpread: {spread:.1f}, Total: {total:.1f}\n\n")
 
 
 def two_csv(data1, data2, lg):
@@ -92,70 +101,65 @@ def two_csv(data1, data2, lg):
     :type lg: str
     :rtype: None
     """
-    # Opening a file based on which league user wants
+    filename = f"{lg.lower()}_{datetime.now().strftime('%m-%d-%Y')}.txt"
+    file = open(filename, "a")
+
+    # Getting league averages based on which league user wants
     if lg.lower() == "mlb":
-        file = open("mlb", "a")
         lg_ppg = float(data1[31][3])
     elif lg.lower() == "nba":
-        file = open("nba", "a")
         lg_ppg = float(data1[31][24])
     elif lg.lower() == "nfl":
-        file = open("nfl", "a")
         lg_ppg = float(data1[35][3])
 
-    # Getting team stats from CSV
-    away = input("Away team? ")
-    away_row_off = row_containing_team(away, data1)
-    away_row_def = row_containing_team(away, data2)
-    if lg.lower() == "mlb":
-        away = data1[away_row_off][0]
-        away_ppg = float(data1[away_row_off][3])
-        away_ppga = float(data2[away_row_def][3])
-    elif lg.lower() == "nba":
-        away = data1[away_row_off][1]
-        away_ppg = float(data1[away_row_off][24])
-        away_ppga = float(data2[away_row_def][24])
-    elif lg.lower() == "nfl":
-        away = data1[away_row_off][1]
-        away_ppg = float(data1[away_row_off][3]) / float(data1[away_row_off][2])
-        away_ppga = float(data2[away_row_def][3]) / float(data2[away_row_def][2])
+    while True:
+        # Getting team stats from CSV
+        away = input("Away team? ")
+        if away.lower() == "exit":
+            break
 
-    home = input("Home team? ")
-    home_row_off = row_containing_team(home, data1)
-    home_row_def = row_containing_team(home, data2)
-    if lg.lower() == "mlb":
-        home = data1[home_row_off][0]
-        home_ppg = float(data1[home_row_off][3])
-        home_ppga = float(data2[home_row_def][3])
-    elif lg.lower() == "nba":
-        home = data1[home_row_off][1]
-        home_ppg = float(data1[home_row_off][24])
-        home_ppga = float(data2[home_row_def][24])
-    elif lg.lower() == "nfl":
-        home = data1[home_row_off][1]
-        home_ppg = float(data1[home_row_off][3]) / float(data1[home_row_off][2])
-        home_ppga = float(data2[home_row_def][3]) / float(data2[home_row_def][2])
+        away_row_off = row_containing_team(away, data1)
+        away_row_def = row_containing_team(away, data2)
+        if lg.lower() == "mlb":
+            away = data1[away_row_off][0]
+            away_ppg = float(data1[away_row_off][3])
+            away_ppga = float(data2[away_row_def][3])
+        elif lg.lower() == "nba":
+            away = data1[away_row_off][1]
+            away_ppg = float(data1[away_row_off][24])
+            away_ppga = float(data2[away_row_def][24])
+        elif lg.lower() == "nfl":
+            away = data1[away_row_off][1]
+            away_ppg = float(data1[away_row_off][3]) / float(data1[away_row_off][2])
+            away_ppga = float(data2[away_row_def][3]) / float(data2[away_row_def][2])
 
-    # Making predictions using stats
-    away_score = (away_ppg / lg_ppg) * (home_ppga / lg_ppg) * lg_ppg
-    home_score = (home_ppg / lg_ppg) * (away_ppga / lg_ppg) * lg_ppg
-    spread = math.fabs(away_score - home_score)
-    total = away_score + home_score
+        home = input("Home team? ")
+        if home.lower() == "exit":
+            break
 
-    print("\n%s: %.1f - %s: %.1f\nSpread: %.1f, Total: %.1f\n" % (away, away_score, home, home_score, spread, total))
-    file.write("%s: %.1f - %s: %.1f\nSpread: %.1f, Total: %.1f\n" % (away, away_score, home, home_score, spread, total))
-    file.close()
+        home_row_off = row_containing_team(home, data1)
+        home_row_def = row_containing_team(home, data2)
+        if lg.lower() == "mlb":
+            home = data1[home_row_off][0]
+            home_ppg = float(data1[home_row_off][3])
+            home_ppga = float(data2[home_row_def][3])
+        elif lg.lower() == "nba":
+            home = data1[home_row_off][1]
+            home_ppg = float(data1[home_row_off][24])
+            home_ppga = float(data2[home_row_def][24])
+        elif lg.lower() == "nfl":
+            home = data1[home_row_off][1]
+            home_ppg = float(data1[home_row_off][3]) / float(data1[home_row_off][2])
+            home_ppga = float(data2[home_row_def][3]) / float(data2[home_row_def][2])
 
+        # Making predictions using stats
+        away_score = (away_ppg / lg_ppg) * (home_ppga / lg_ppg) * lg_ppg
+        home_score = (home_ppg / lg_ppg) * (away_ppga / lg_ppg) * lg_ppg
+        spread = math.fabs(away_score - home_score)
+        total = away_score + home_score
 
-def poisson(actual, mean):
-    """
-    Returns a Poisson probability
-    :type actual: float
-    :type mean: float
-    :rtype: float
-    """
-    # Using the Poisson distribution
-    return math.pow(mean, actual) * math.exp(-mean) / math.factorial(actual)
+        print(f"{away}: {away_score:.1f} - {home}: {home_score:.1f}\nSpread: {spread:.1f}, Total: {total:.1f}\n\n")
+        file.write(f"{away}: {away_score:.1f} - {home}: {home_score:.1f}\nSpread: {spread:.1f}, Total: {total:.1f}\n\n")
 
 
 main()
