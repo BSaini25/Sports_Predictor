@@ -81,30 +81,6 @@ def one_csv(data, lg):
 
     print("\n%s: %.1f - %s: %.1f\nSpread: %.1f, Total: %.1f\n" % (away, away_score, home, home_score, spread, total))
     file.write("%s: %.1f - %s: %.1f\nSpread: %.1f, Total: %.1f\n" % (away, away_score, home, home_score, spread, total))
-
-    away_win = 0.0
-    home_win = 0.0
-    tie = 0.0
-
-    # Using a Poisson distribution to calculate likelihood of favourite winning
-    if lg.lower() == "nhl":
-        for i in range(9):
-            for j in range(9):
-                prob = poisson(i, away_score) * poisson(j, home_score)
-                if i < j:
-                    home_win += prob
-                elif i > j:
-                    away_win += prob
-                else:
-                    tie += prob
-    print("%s: %.3f" % (away, away_win / (away_win + home_win + tie)))
-    file.write("%s: %.3f\n" % (away, away_win / (away_win + home_win + tie)))
-    print("%s: %.3f" % (home, home_win / (away_win + home_win + tie)))
-    file.write("%s: %.3f\n" % (home, home_win / (away_win + home_win + tie)))
-    print("Tie: %.3f" % (tie / (away_win + home_win + tie)))
-    file.write("Tie: %.3f\n" % (tie / (away_win + home_win + tie)))
-    print("SU: %.3f\n" % (max(away_win, home_win) / (away_win + home_win)))
-    file.write("SU: %.3f\n\n" % (max(away_win, home_win) / (away_win + home_win)))
     file.close()
 
 
@@ -168,50 +144,6 @@ def two_csv(data1, data2, lg):
 
     print("\n%s: %.1f - %s: %.1f\nSpread: %.1f, Total: %.1f\n" % (away, away_score, home, home_score, spread, total))
     file.write("%s: %.1f - %s: %.1f\nSpread: %.1f, Total: %.1f\n" % (away, away_score, home, home_score, spread, total))
-
-    away_win = 0.0
-    home_win = 0.0
-    tie = 0.0
-
-    # Using a Poisson distribution to calculate likelihood of favourite winning
-    if lg.lower() == "mlb":
-        for i in range(9):
-            for j in range(9):
-                prob = poisson(i, away_score) * poisson(j, home_score)
-                if i < j:
-                    home_win += prob
-                elif i > j:
-                    away_win += prob
-                else:
-                    tie += prob
-    elif lg.lower() == "nba":
-        for i in range(80, 150, 5):
-            for j in range(80, 150, 5):
-                prob = poisson(i, away_score) * poisson(j, home_score)
-                if i < j:
-                    home_win += prob
-                elif i > j:
-                    away_win += prob
-                else:
-                    tie += prob
-    elif lg.lower() == "nfl":
-        for i in range(0, 50, 5):
-            for j in range(0, 50, 5):
-                prob = poisson(i, away_score) * poisson(j, home_score)
-                if i < j:
-                    home_win += prob
-                elif i > j:
-                    away_win += prob
-                else:
-                    tie += prob
-    print("%s: %.3f" % (away, away_win / (away_win + home_win + tie)))
-    file.write("%s: %.3f\n" % (away, away_win / (away_win + home_win + tie)))
-    print("%s: %.3f" % (home, home_win / (away_win + home_win + tie)))
-    file.write("%s: %.3f\n" % (home, home_win / (away_win + home_win + tie)))
-    print("Tie: %.3f" % (tie / (away_win + home_win + tie)))
-    file.write("Tie: %.3f\n" % (tie / (away_win + home_win + tie)))
-    print("SU: %.3f\n" % (max(away_win, home_win) / (away_win + home_win)))
-    file.write("SU: %.3f\n\n" % (max(away_win, home_win) / (away_win + home_win)))
     file.close()
 
 
